@@ -33,6 +33,8 @@
 	var/p_x = 16
 	var/p_y = 16 // the pixel location of the tile that the player clicked. Default is the center
 
+	var/dispersion = 0.0
+
 	var/damage = 10
 	var/damage_type = BRUTE //BRUTE, BURN, TOX, OXY, CLONE are the only things that should be in here
 	var/nodamage = 0 //Determines if the projectile will skip any damage inflictions
@@ -87,17 +89,22 @@
 	impact_effect(effect_transform)		// generate impact effect
 	return
 
-/obj/item/projectile/proc/check_fire(var/mob/living/target as mob, var/mob/living/user as mob)  //Checks if you can hit them or not.
-	if(!istype(target) || !istype(user))
-		return 0
-	var/obj/item/projectile/test/in_chamber = new /obj/item/projectile/test(get_step_to(user,target)) //Making the test....
-	in_chamber.target = target
-	in_chamber.flags = flags //Set the flags...
-	in_chamber.pass_flags = pass_flags //And the pass flags to that of the real projectile...
-	in_chamber.firer = user
-	var/output = in_chamber.process() //Test it!
-	qdel(in_chamber) //No need for it anymore
-	return output //Send it back to the gun!
+/obj/item/projectile/proc/check_fire(atom/target as mob, var/mob/living/user as mob)  //Checks if you can hit them or not.
+	check_trajectory(target, user, pass_flags, flags)
+
+//sets the click point of the projectile using mouse input params
+/obj/item/projectile/proc/set_clickpoint(var/params)
+	var/list/mouse_control = params2list(params)
+	if(mouse_control["icon-x"])
+		p_x = text2num(mouse_control["icon-x"])
+	if(mouse_control["icon-y"])
+		p_y = text2num(mouse_control["icon-y"])
+
+	//randomize clickpoint a bit based on dispersion
+	if(dispersion)
+		var/radius = round((dispersion*0.443)*world.icon_size*0.8) //0.443 = sqrt(pi)/4 = 2a, where a is the side length of a square that shares the same area as a circle with diameter = dispersion
+		p_x = between(0, p_x + rand(-radius, radius), world.icon_size)
+		p_y = between(0, p_y + rand(-radius, radius), world.icon_size)
 
 /obj/item/projectile/Bump(atom/A as mob|obj|turf|area)
 	if(A == firer)
@@ -304,3 +311,18 @@
 		process()
 
 	return 0
+
+/proc/check_trajectory(atom/target as mob|obj, atom/firer as mob|obj, var/pass_flags=PASSTABLE|PASSGLASS|PASSGRILLE, flags=null)
+	if(!istype(target) || !istype(firer))
+		return 0
+
+	var/obj/item/projectile/test/trace = new /obj/item/projectile/test(get_turf(firer)) //Making the test....
+
+	//Set the flags and pass flags to that of the real projectile...
+	if(!isnull(flags))
+		trace.flags = flags
+	trace.pass_flags = pass_flags
+
+	var/output = trace.launch(target) //Test it!
+	qdel(trace) //No need for it anymore
+	return output //Send it back to the gun!

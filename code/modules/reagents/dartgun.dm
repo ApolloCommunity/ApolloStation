@@ -32,8 +32,6 @@
 	var/container_type = /obj/item/weapon/reagent_containers/glass/beaker
 	var/list/starting_chems = null
 
-	muzzle_type = null
-
 /obj/item/weapon/gun/dartgun/update_icon()
 
 	if(!cartridge)
