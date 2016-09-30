@@ -8,11 +8,12 @@
 	embed = 1
 	sharp = 1
 	can_fall = 0 // bullets won't fall down open spaces
-
+	muzzle_type = /obj/effect/projectile/bullet/muzzle
 	on_hit(var/atom/target, var/blocked = 0)
 		if (..(target, blocked))
 			var/mob/living/L = target
 			shake_camera(L, 3, 2)
+
 
 /obj/item/projectile/bullet/weakbullet // "rubber" bullets
 	damage = 10

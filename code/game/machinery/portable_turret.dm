@@ -649,6 +649,7 @@
 		use_power(reqpower * 2)
 		//Shooting Code:
 	A.current = T
+	A.starting = T
 	A.yo = U.y - T.y
 	A.xo = U.x - T.x
 	spawn(1)
