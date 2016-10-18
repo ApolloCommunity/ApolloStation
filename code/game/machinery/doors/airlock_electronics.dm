@@ -116,3 +116,9 @@
 	desc = "designed to be somewhat more resistant to hacking than standard electronics."
 	origin_tech = "programming=2"
 	secure = 1
+
+/obj/item/weapon/airlock_electronics/brace
+	name = "airlock brace access circuit"
+	req_access = null
+	locked = 0
+	secure = 1

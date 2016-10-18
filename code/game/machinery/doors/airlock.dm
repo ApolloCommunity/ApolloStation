@@ -29,6 +29,8 @@
 	var/hasShocked = 0 //Prevents multiple shocks from happening
 	var/secured_wires = 0
 	var/datum/wires/airlock/wires = null
+	var/obj/item/weapon/airlock_brace/brace = null
+
 
 /obj/machinery/door/airlock/attack_generic(var/mob/user, var/damage)
 	if(stat & (BROKEN|NOPOWER))
@@ -42,6 +44,9 @@
 		else
 			visible_message("<span class='notice'>\The [user] strains fruitlessly to force \the [src] [density ? "open" : "closed"].</span>")
 		return
+	if(brace)
+		brace.update_icon()
+		overlays += image(brace.icon, brace.icon_state)
 	..()
 
 /obj/machinery/door/airlock/command
@@ -281,7 +286,7 @@
 About the new airlock wires panel:
 *	An airlock wire dialog can be accessed by the normal way or by using wirecutters or a multitool on the door while the wire-panel is open. This would show the following wires, which you can either wirecut/mend or send a multitool pulse through. There are 9 wires.
 *		one wire from the ID scanner. Sending a pulse through this flashes the red light on the door (if the door has power). If you cut this wire, the door will stop recognizing valid IDs. (If the door has 0000 access, it still opens and closes, though)
-*		two wires for power. Sending a pulse through either one causes a breaker to trip, disabling the door for 10 seconds if backup power is connected, or 1 minute if not (or until backup power comes back on, whichever is shorter). Cutting either one disables the main door power, but unless backup power is also cut, the backup power re-powers the door in 10 seconds. While unpowered, the door may be <span class='alert'>open, but bolts-raising will not work. Cutting these wires may electrocute the user.</span>
+*		two wires for power. Sending a pulse through either one causes a breaker to trip, disabling the door for 10 seconds if backup power is connected, or 1 minute if not (or until backup power comes back on, whichever is shorter). Cutting either one disables the main door power, but unless backup power is also cut, the backup power re-powers the door in 10 seconds. While unpowered, the door may be <span class='alert'>open, but bolts-raising will not work. Cutting these wires may electrocute the user.</span>
 *		one wire for door bolts. Sending a pulse through this drops door bolts (whether the door is powered or not) or raises them (if it is). Cutting this wire also drops the door bolts, and mending it does not raise them. If the wire is cut, trying to raise the door bolts will not work.
 *		two wires for backup power. Sending a pulse through either one causes a breaker to trip, but this does not disable it unless main power is down too (in which case it is disabled for 1 minute or however long it takes main power to come back, whichever is shorter). Cutting either one disables the backup door power (allowing it to be crowbarred open, but disabling bolts-raising), but may electocute the user.
 *		one wire for opening the door. Sending a pulse through this while the door has power makes it open the door if no access is required.
@@ -864,6 +869,23 @@ About the new airlock wires panel:
 /obj/machinery/door/airlock/attackby(C as obj, mob/user as mob)
 	//world << text("airlock attackby src [] obj [] mob []", src, C, user)
 	var/mob/living/carbon/human/us = user
+	// Brace is considered installed on the airlock, so interacting with it is protected from electrification.
+	if(brace && (istype(C, /obj/item/weapon/card/id) || istype(C, /obj/item/weapon/crowbar/brace_jack)))
+		return brace.attackby(C, user)
+
+	if(!brace && istype(C, /obj/item/weapon/airlock_brace))
+		if(!density)
+			user << "You must close \the [src] before installing \the [C]!"
+			return
+
+		if(do_after(user, 50) && density)
+			user << "You successfully install \the [C]. \The [src] has been locked."
+			brace = C
+			brace.airlock = src
+			user.drop_from_inventory(brace)
+			brace.forceMove(src)
+			update_icon()
+		return
 
 	if(!istype(usr, /mob/living/silicon))
 		if(src.isElectrified())
@@ -1218,3 +1240,20 @@ About the new airlock wires panel:
 	src.open()
 	src.lock()
 	return
+
+// Braces can act as an extra layer of armor - they will take damage first.
+/obj/machinery/door/airlock/take_damage(var/amount)
+	if(brace)
+		brace.take_damage(amount)
+	else
+		..(amount)
+
+/obj/machinery/door/airlock/examine()
+	..()
+	if(brace)
+		usr << "\The [brace] is installed on \the [src], preventing it from opening."
+		usr << brace.examine_health()
+
+/obj/machinery/door/airlock/bumpopen(mob/user as mob)
+	if(brace)	return
+	..()

@@ -1632,6 +1632,22 @@ datum/design/item/chameleon
 	req_tech = list("syndicate" = 2)
 	materials = list("$metal" = 500)
 	build_path = /obj/item/weapon/storage/box/syndie_kit/chameleon
+
+/datum/design/item/airlock_brace
+	name = "airlock brace design"
+	desc = "Special door attachment that can be used to provide extra security."
+	id = "brace"
+	req_tech = list("engineering" = 3, "materials" = 2)
+	materials = list("$metal" = 2000, "$glass" = 50)
+	build_path = /obj/item/weapon/airlock_brace
+
+/datum/design/item/brace_jack
+	name = "maintenance jack design"
+	desc = "A special maintenance tool that can be used to remove airlock braces."
+	id = "bracejack"
+	req_tech = list("engineering" = 3, "materials" = 2)
+	materials = list("$metal" = 120)
+	build_path = /obj/item/weapon/crowbar/brace_jack
 /*
 datum/design/item/omnitool
 	name = "Omnitool"
