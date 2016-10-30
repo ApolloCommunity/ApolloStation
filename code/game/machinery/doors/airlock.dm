@@ -3,6 +3,7 @@
 	icon = 'icons/obj/doors/doorint.dmi'
 	icon_state = "door_closed"
 	power_channel = ENVIRON
+	dir = 1
 
 	explosion_resistance = 15
 	var/aiControlDisabled = 0 //If 1, AI control is disabled until the AI hacks back in and disables the lock. If 2, the AI has bypassed the lock. If -1, the control is enabled but the AI had bypassed it earlier, so if it is disabled again the AI would have no trouble getting back in.
@@ -30,6 +31,87 @@
 	var/secured_wires = 0
 	var/datum/wires/airlock/wires = null
 
+	//Airlock Aesthetics Properties
+	//The variables below determine what color the airlock and decorative stripes will be -Cakey
+	var/doorColor = "none"
+	var/stripeColor = "none"
+
+/obj/machinery/door/airlock/glass
+	name = "Glass Airlock"
+	icon = 'icons/obj/doors/Doorglass.dmi'
+	hitsound = 'sound/effects/Glasshit.ogg'
+	maxhealth = 300
+	opacity = 0
+	glass = 1
+
+//Presets
+/obj/machinery/door/airlock/command
+	doorColor = "blue"
+	stripeColor = "blue"
+
+/obj/machinery/door/airlock/glass/command
+	doorColor = "blue"
+	stripeColor = "blue"
+
+/obj/machinery/door/airlock/security
+	doorColor = "red"
+	stripeColor = "yellow"
+
+/obj/machinery/door/airlock/glass/security
+	doorColor = "red"
+	stripeColor = "yellow"
+
+/obj/machinery/door/airlock/engineering
+	doorColor = "yellow"
+	stripeColor = "red"
+
+/obj/machinery/door/airlock/glass/engineering
+	doorColor = "yellow"
+	stripeColor = "red"
+
+/obj/machinery/door/airlock/medical
+	doorColor = "white"
+	stripeColor = "green"
+
+/obj/machinery/door/airlock/glass/medical
+	doorColor = "white"
+	stripeColor = "green"
+
+/obj/machinery/door/airlock/mining
+	doorColor = "brown"
+	stripeColor = "brown"
+
+/obj/machinery/door/airlock/glass/mining
+	doorColor = "brown"
+	stripeColor = "brown"
+
+/obj/machinery/door/airlock/atmos
+	doorColor = "yellow"
+	stripeColor = "blue"
+
+/obj/machinery/door/airlock/glass/atmos
+	doorColor = "yellow"
+	stripeColor = "blue"
+
+/obj/machinery/door/airlock/research
+	doorColor = "white"
+	stripeColor = "indigo"
+
+/obj/machinery/door/airlock/glass/research
+	doorColor = "white"
+	stripeColor = "indigo"
+
+/obj/machinery/door/airlock/science
+	doorColor = "white"
+	stripeColor = "violet"
+
+/obj/machinery/door/airlock/glass/science
+	doorColor = "white"
+	stripeColor = "violet"
+
+/obj/machinery/door/airlock/maintenance
+	stripeColor = "green"
+
 /obj/machinery/door/airlock/attack_generic(var/mob/user, var/damage)
 	if(stat & (BROKEN|NOPOWER))
 		if(damage >= 10)
@@ -44,43 +126,10 @@
 		return
 	..()
 
-/obj/machinery/door/airlock/command
-	name = "Airlock"
-	icon = 'icons/obj/doors/Doorcom.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_com
-
-/obj/machinery/door/airlock/security
-	name = "Airlock"
-	icon = 'icons/obj/doors/Doorsec.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_sec
-
-/obj/machinery/door/airlock/engineering
-	name = "Airlock"
-	icon = 'icons/obj/doors/Dooreng.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_eng
-
-/obj/machinery/door/airlock/medical
-	name = "Airlock"
-	icon = 'icons/obj/doors/doormed.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_med
-
-/obj/machinery/door/airlock/maintenance
-	name = "Maintenance Access"
-	icon = 'icons/obj/doors/Doormaint.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_mai
-
 /obj/machinery/door/airlock/external
 	name = "External Airlock"
 	icon = 'icons/obj/doors/Doorext.dmi'
 	assembly_type = /obj/structure/door_assembly/door_assembly_ext
-
-/obj/machinery/door/airlock/glass
-	name = "Glass Airlock"
-	icon = 'icons/obj/doors/Doorglass.dmi'
-	hitsound = 'sound/effects/Glasshit.ogg'
-	maxhealth = 300
-	opacity = 0
-	glass = 1
 
 /obj/machinery/door/airlock/centcom
 	name = "Airlock"
@@ -111,85 +160,6 @@
 	icon = 'icons/obj/doors/Doorhatchmaint2.dmi'
 	opacity = 1
 	assembly_type = /obj/structure/door_assembly/door_assembly_mhatch
-
-/obj/machinery/door/airlock/glass_command
-	name = "Maintenance Hatch"
-	icon = 'icons/obj/doors/Doorcomglass.dmi'
-	hitsound = 'sound/effects/Glasshit.ogg'
-	maxhealth = 300
-	opacity = 0
-	assembly_type = /obj/structure/door_assembly/door_assembly_com
-	glass = 1
-
-/obj/machinery/door/airlock/glass_engineering
-	name = "Maintenance Hatch"
-	icon = 'icons/obj/doors/Doorengglass.dmi'
-	hitsound = 'sound/effects/Glasshit.ogg'
-	maxhealth = 300
-	opacity = 0
-	assembly_type = /obj/structure/door_assembly/door_assembly_eng
-	glass = 1
-
-/obj/machinery/door/airlock/glass_security
-	name = "Maintenance Hatch"
-	icon = 'icons/obj/doors/Doorsecglass.dmi'
-	hitsound = 'sound/effects/Glasshit.ogg'
-	maxhealth = 300
-	opacity = 0
-	assembly_type = /obj/structure/door_assembly/door_assembly_sec
-	glass = 1
-
-/obj/machinery/door/airlock/glass_medical
-	name = "Maintenance Hatch"
-	icon = 'icons/obj/doors/doormedglass.dmi'
-	hitsound = 'sound/effects/Glasshit.ogg'
-	maxhealth = 300
-	opacity = 0
-	assembly_type = /obj/structure/door_assembly/door_assembly_med
-	glass = 1
-
-/obj/machinery/door/airlock/mining
-	name = "Mining Airlock"
-	icon = 'icons/obj/doors/Doormining.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_min
-
-/obj/machinery/door/airlock/atmos
-	name = "Atmospherics Airlock"
-	icon = 'icons/obj/doors/Dooratmo.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_atmo
-
-/obj/machinery/door/airlock/research
-	name = "Airlock"
-	icon = 'icons/obj/doors/doorresearch.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_research
-
-/obj/machinery/door/airlock/glass_research
-	name = "Maintenance Hatch"
-	icon = 'icons/obj/doors/doorresearchglass.dmi'
-	hitsound = 'sound/effects/Glasshit.ogg'
-	maxhealth = 300
-	opacity = 0
-	assembly_type = /obj/structure/door_assembly/door_assembly_research
-	glass = 1
-	heat_proof = 1
-
-/obj/machinery/door/airlock/glass_mining
-	name = "Maintenance Hatch"
-	icon = 'icons/obj/doors/Doorminingglass.dmi'
-	hitsound = 'sound/effects/Glasshit.ogg'
-	maxhealth = 300
-	opacity = 0
-	assembly_type = /obj/structure/door_assembly/door_assembly_min
-	glass = 1
-
-/obj/machinery/door/airlock/glass_atmos
-	name = "Maintenance Hatch"
-	icon = 'icons/obj/doors/Dooratmoglass.dmi'
-	hitsound = 'sound/effects/Glasshit.ogg'
-	maxhealth = 300
-	opacity = 0
-	assembly_type = /obj/structure/door_assembly/door_assembly_atmo
-	glass = 1
 
 /obj/machinery/door/airlock/gold
 	name = "Gold Airlock"
@@ -259,18 +229,6 @@
 	icon = 'icons/obj/doors/Doorsand.dmi'
 	mineral = "sandstone"
 
-/obj/machinery/door/airlock/science
-	name = "Airlock"
-	icon = 'icons/obj/doors/Doorsci.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_science
-
-/obj/machinery/door/airlock/glass_science
-	name = "Glass Airlocks"
-	icon = 'icons/obj/doors/Doorsciglass.dmi'
-	opacity = 0
-	assembly_type = /obj/structure/door_assembly/door_assembly_science
-	glass = 1
-
 /obj/machinery/door/airlock/highsecurity
 	name = "Secure Airlock"
 	icon = 'icons/obj/doors/hightechsecurity.dmi'
@@ -281,7 +239,7 @@
 About the new airlock wires panel:
 *	An airlock wire dialog can be accessed by the normal way or by using wirecutters or a multitool on the door while the wire-panel is open. This would show the following wires, which you can either wirecut/mend or send a multitool pulse through. There are 9 wires.
 *		one wire from the ID scanner. Sending a pulse through this flashes the red light on the door (if the door has power). If you cut this wire, the door will stop recognizing valid IDs. (If the door has 0000 access, it still opens and closes, though)
-*		two wires for power. Sending a pulse through either one causes a breaker to trip, disabling the door for 10 seconds if backup power is connected, or 1 minute if not (or until backup power comes back on, whichever is shorter). Cutting either one disables the main door power, but unless backup power is also cut, the backup power re-powers the door in 10 seconds. While unpowered, the door may be <span class='alert'>open, but bolts-raising will not work. Cutting these wires may electrocute the user.</span>
+*		two wires for power. Sending a pulse through either one causes a breaker to trip, disabling the door for 10 seconds if backup power is connected, or 1 minute if not (or until backup power comes back on, whichever is shorter). Cutting either one disables the main door power, but unless backup power is also cut, the backup power re-powers the door in 10 seconds. While unpowered, the door may be <span class='alert'>open, but bolts-raising will not work. Cutting these wires may electrocute the user.</span>
 *		one wire for door bolts. Sending a pulse through this drops door bolts (whether the door is powered or not) or raises them (if it is). Cutting this wire also drops the door bolts, and mending it does not raise them. If the wire is cut, trying to raise the door bolts will not work.
 *		two wires for backup power. Sending a pulse through either one causes a breaker to trip, but this does not disable it unless main power is down too (in which case it is disabled for 1 minute or however long it takes main power to come back, whichever is shorter). Cutting either one disables the backup door power (allowing it to be crowbarred open, but disabling bolts-raising), but may electocute the user.
 *		one wire for opening the door. Sending a pulse through this while the door has power makes it open the door if no access is required.
@@ -1136,6 +1094,29 @@ About the new airlock wires panel:
 	relativewall_neighbours()
 
 	..()
+	switch(doorColor) //IT'S THE COLORS OF THE RAINBOW~!! -Cakey
+		if("red")
+			world << "fuck u"
+	/*	if("orange")
+		if("yellow")
+		if("green")
+		if("blue")
+		if("indigo")
+		if("violet")
+		if("brown")
+		if("white")*/
+
+	switch(doorColor) //IT'S THE COLORS OF THE RAINBOW~!! AGAIN!! -Cakey
+		if("red")
+			world << "fuck u"
+	/*	if("orange")
+		if("yellow")
+		if("green")
+		if("blue")
+		if("indigo")
+		if("violet")
+		if("brown")
+		if("white")*/
 
 	//High-sec airlocks are much harder to completely break by emitters.
 	if(secured_wires)
