@@ -34,7 +34,9 @@
 	//Airlock Aesthetics Properties
 	//The variables below determine what color the airlock and decorative stripes will be -Cakey
 	var/doorColor = "none"
+	var/colorOverlay
 	var/stripeColor = "none"
+	var/stripeOverlay
 
 /obj/machinery/door/airlock/glass
 	name = "Glass Airlock"
@@ -996,10 +998,7 @@ About the new airlock wires panel:
 			if( !arePowerSystemsOn() || isWireCut(AIRLOCK_WIRE_OPEN_DOOR) )
 				return 0
 
-			if(istype(src, /obj/machinery/door/airlock/glass))
-				playsound(src.loc, 'sound/machines/windowdoor.ogg', 100, 1)
-			else
-				playsound(src.loc, 'sound/machines/airlock.ogg', 30, 1)
+			playsound(src.loc, 'sound/machines/airlock.ogg', 30, 1)
 		if(1)	playsound(src.loc, 'sound/machines/airlockforced.ogg', 30, 1)
 
 	use_power(360)	//360 W seems much more appropriate for an actuator moving an industrial door capable of crushing people
@@ -1053,10 +1052,7 @@ About the new airlock wires panel:
 
 	use_power(360)	//360 W seems much more appropriate for an actuator moving an industrial door capable of crushing people
 	if(!forced)
-		if(istype(src, /obj/machinery/door/airlock/glass))
-			playsound(src.loc, 'sound/machines/windowdoor.ogg', 30, 1)
-		else
-			playsound(src.loc, 'sound/machines/airlock.ogg', 30, 1)
+		playsound(src.loc, 'sound/machines/airlock.ogg', 30, 1)
 	else	playsound(src.loc, 'sound/machines/airlockforced.ogg', 30, 1)
 
 	for(var/turf/turf in locs)
@@ -1093,18 +1089,9 @@ About the new airlock wires panel:
 /obj/machinery/door/airlock/New(var/newloc, var/obj/structure/door_assembly/assembly=null)
 	relativewall_neighbours()
 
+
 	..()
-	switch(doorColor) //IT'S THE COLORS OF THE RAINBOW~!! -Cakey
-		if("red")
-			world << "fuck u"
-	/*	if("orange")
-		if("yellow")
-		if("green")
-		if("blue")
-		if("indigo")
-		if("violet")
-		if("brown")
-		if("white")*/
+	getDoorColor()
 
 	switch(doorColor) //IT'S THE COLORS OF THE RAINBOW~!! AGAIN!! -Cakey
 		if("red")
@@ -1199,3 +1186,54 @@ About the new airlock wires panel:
 	src.open()
 	src.lock()
 	return
+
+/obj/machinery/door/airlock/proc/getDoorColor()
+	/*if(doorColor = "none")
+		colorOverlay.alpha = 0
+	else
+		colorOverlay.alpha = 122
+		switch(doorColor) //IT'S THE COLORS OF THE RAINBOW~!! -Cakey
+			if("red")
+				colorOverlay.color = "#a80000"
+			if("orange")
+				colorOverlay.color = "#a80000"
+			if("yellow")
+				colorOverlay.color = "#a80000"
+			if("green")
+				colorOverlay.color = "#a80000"
+			if("blue")
+				colorOverlay.color = "#a80000"
+			if("indigo")
+				colorOverlay.color = "#a80000"
+			if("violet")
+				colorOverlay.color = "#a80000"
+			if("brown")
+				colorOverlay.color = "#a80000"
+			if("white")
+				colorOverlay.color = "#a80000"*/
+
+
+/obj/machinery/door/airlock/proc/getDoorStripe()
+	/*if(stripeColor = "none")
+		stripeOverlay.alpha = 0
+	else
+		stripeOverlay.alpha = 122
+		switch(stripeColor) //IT'S THE COLORS OF THE RAINBOW~!! -Cakey
+			if("red")
+				stripeOverlay.color = "#a80000"
+			if("orange")
+				stripeOverlay.color = "#a80000"
+			if("yellow")
+				stripeOverlay.color = "#a80000"
+			if("green")
+				stripeOverlay.color = "#a80000"
+			if("blue")
+				stripeOverlay.color = "#a80000"
+			if("indigo")
+				stripeOverlay.color = "#a80000"
+			if("violet")
+				stripeOverlay.color = "#a80000"
+			if("brown")
+				stripeOverlay.color = "#a80000"
+			if("white")
+				stripeOverlay.color = "#a80000"*/

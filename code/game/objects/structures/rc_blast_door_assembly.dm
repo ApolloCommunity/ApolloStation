@@ -1,6 +1,6 @@
 /obj/structure/door_assembly/rc_blast_door
 	name = "blast door assembly"
-	icon = 'icons/obj/doors/rapid_pdoor.dmi'
+	icon = 'icons/obj/doors/doorBlast.dmi'
 	icon_state = "pdoor1"
 	anchored = 0
 	density = 1
