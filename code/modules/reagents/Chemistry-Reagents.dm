@@ -1,18 +1,8 @@
-#define SOLID 1
-#define LIQUID 2
-#define GAS 3
-#define REAGENTS_OVERDOSE 30
-#define REM REAGENTS_EFFECT_MULTIPLIER
-
-//The reaction procs must ALWAYS set src = null, this detaches the proc from the object (the reagent)
-//so that it can continue working when the reagent is deleted while the proc is still active.
-
-
 datum
 	reagent
 		var/name = "Reagent"
 		var/id = "reagent"
-		var/description = ""
+		var/description = "A non-descript chemical."
 		var/datum/reagents/holder = null
 		var/reagent_state = SOLID
 		var/list/data = null
@@ -20,57 +10,27 @@ datum
 		var/nutriment_factor = 0
 		var/custom_metabolism = REAGENTS_METABOLISM
 		var/overdose = 0
-		var/overdose_dam = 1
 		var/scannable = 0 //shows up on health analyzers
+		var/affects_dead = 0
 		var/glass_icon_state = null
 		var/glass_name = null
 		var/glass_desc = null
 		var/glass_center_of_mass = null
-		//var/list/viruses = list()
+		var/taste_description = "old rotten bandaids"
+		var/taste_mult = 1 //how this taste compares to others. Higher values means it is more noticable
 		var/color = "#000000" // rgb: 0, 0, 0 (does not support alpha channels - yet!)
 
 		proc
-			reaction_mob(var/mob/M, var/method=TOUCH, var/volume) //By default we have a chance to transfer some
-				if(!istype(M, /mob/living))	return 0
-				var/datum/reagent/self = src
-				src = null										  //of the reagent to the mob on TOUCHING it.
+			remove_self(var/amount) // Shortcut
+				holder.remove_reagent(id, amount)
 
-				if(self.holder)		//for catching rare runtimes
-					if(!istype(self.holder.my_atom, /obj/effect/effect/smoke/chem))
-						// If the chemicals are in a smoke cloud, do not try to let the chemicals "penetrate" into the mob's system (balance station 13) -- Doohl
-
-						if(method == TOUCH)
-
-							var/chance = 1
-							var/block  = 0
-
-							for(var/obj/item/clothing/C in M.get_equipped_items())
-								if(C.permeability_coefficient < chance) chance = C.permeability_coefficient
-								if(istype(C, /obj/item/clothing/suit/bio_suit))
-									// bio suits are just about completely fool-proof - Doohl
-									// kind of a hacky way of making bio suits more resistant to chemicals but w/e
-									if(prob(75))
-										block = 1
-
-								if(istype(C, /obj/item/clothing/head/bio_hood))
-									if(prob(75))
-										block = 1
-
-							chance = chance * 100
-
-							if(prob(chance) && !block)
-								if(M.reagents)
-									M.reagents.add_reagent(self.id,self.volume/2)
-				return 1
-
-			reaction_obj(var/obj/O, var/volume) //By default we transfer a small part of the reagent to the object
-				src = null						//if it can hold reagents. nope!
-				//if(O.reagents)
-				//	O.reagents.add_reagent(id,volume/3)
+			touch_mob(var/mob/M, var/amount)
 				return
 
-			reaction_turf(var/turf/T, var/volume)
-				src = null
+			touch_obj(var/obj/O, var/amount) // Acid melting, cleaner cleaning, etc
+				return
+
+			touch_turf(var/turf/T, var/amount) // Cleaner cleaning, lube lubbing, etc, all go here
 				return
 
 			on_mob_life(var/mob/living/M as mob, var/alien)
@@ -81,19 +41,44 @@ datum
 				holder.remove_reagent(src.id, custom_metabolism) //By default it slowly disappears.
 				return
 
-			on_move(var/mob/M)
+			get_data() // Just in case you have a reagent that handles data differently.
+				if(data && istype(data, /list))
+					return data.Copy()
+				else if(data)
+					return data
+				return null
+
+			affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
 				return
 
-			// Called after add_reagents creates a new reagent.
-			on_new(var/data)
+			affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
+				affect_blood(M, alien, removed * 0.5)
 				return
 
-			// Called when two reagents of the same are mixing.
-			on_merge(var/data)
+			affect_touch(var/mob/living/carbon/M, var/alien, var/removed)
 				return
 
-			on_update(var/atom/A)
+			overdose(var/mob/living/carbon/M, var/alien) // Overdose effect. Doesn't happen instantly.
+				M.adjustToxLoss(REM)
 				return
+
+			initialize_data(var/newdata) // Called when the reagent is created.
+				if(!isnull(newdata))
+					data = newdata
+				return
+
+			mix_data(var/newdata, var/newamount) // You have a reagent with data, and new reagent with its own data get added, how do you deal with that?
+				return
+
+			reaction_turf(var/turf/target)
+				touch_turf(target)
+
+			reaction_obj(var/obj/target)
+				touch_obj(target)
+
+			reaction_mob(var/mob/target)
+				touch_mob(target)
+
 
 
 

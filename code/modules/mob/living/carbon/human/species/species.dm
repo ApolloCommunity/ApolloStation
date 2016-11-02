@@ -77,6 +77,8 @@
 	var/light_dam                                     // If set, mob will be damaged in light over this value and heal in light below its negative.
 	var/body_temperature = 310.15	                  // Non-IS_SYNTHETIC species will try to stabilize at this temperature.
 	                                                  // (also affects temperature processing)
+	var/taste_sensitivity = TASTE_NORMAL              // How sensitive the species is to minute tastes.
+
 	// HUD data vars.
 	var/datum/hud_data/hud
 	var/hud_type

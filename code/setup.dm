@@ -426,6 +426,13 @@
 #define DISFIGURED	16384	//I'll probably move this elsewhere if I ever get wround to writing a bitflag mob-damage system
 #define XENO_HOST	32768	//Tracks whether we're gonna be a baby alien's mummy.
 
+//carbon taste sensitivity defines, used in mob/living/carbon/proc/ingest
+#define TASTE_HYPERSENSITIVE 3 //anything below 5%
+#define TASTE_SENSITIVE 2 //anything below 7%
+#define TASTE_NORMAL 1 //anything below 15%
+#define TASTE_DULL 0.5 //anything below 30%
+#define TASTE_NUMB 0.1 //anything below 150%
+
 //Grab levels
 #define GRAB_PASSIVE	1
 #define GRAB_AGGRESSIVE	2
