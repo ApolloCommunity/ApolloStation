@@ -33,18 +33,41 @@
 
 	//Airlock Aesthetics Properties
 	//The variables below determine what color the airlock and decorative stripes will be -Cakey
+	var/doortype = "standard"
 	var/doorColor = "none"
-	var/colorOverlay
+	var/image/colorOverlay = null
 	var/stripeColor = "none"
-	var/stripeOverlay
+	var/image/stripeOverlay = null
 
 /obj/machinery/door/airlock/glass
 	name = "Glass Airlock"
-	icon = 'icons/obj/doors/Doorglass.dmi'
+	icon = 'icons/obj/doors/doorglass.dmi'
 	hitsound = 'sound/effects/Glasshit.ogg'
 	maxhealth = 300
 	opacity = 0
 	glass = 1
+	doortype = "glass"
+
+/obj/machinery/door/airlock/highsecurity
+	name = "Secure Airlock"
+	icon = 'icons/obj/doors/hightechsecurity.dmi'
+	secured_wires = 1
+	assembly_type = /obj/structure/door_assembly/door_assembly_highsecurity
+	doortype = "secure"
+
+/obj/machinery/door/airlock/vault
+	name = "Vault"
+	icon = 'icons/obj/doors/vault.dmi'
+	opacity = 1
+	secured_wires = 1
+	assembly_type = /obj/structure/door_assembly/door_assembly_highsecurity //Until somebody makes better sprites.
+	doortype = "vault"
+
+/obj/machinery/door/airlock/external
+	name = "External Airlock"
+	icon = 'icons/obj/doors/Doorext.dmi'
+	assembly_type = /obj/structure/door_assembly/door_assembly_ext
+	doortype = "external"
 
 //Presets
 /obj/machinery/door/airlock/command
@@ -114,42 +137,14 @@
 /obj/machinery/door/airlock/maintenance
 	stripeColor = "green"
 
-/obj/machinery/door/airlock/attack_generic(var/mob/user, var/damage)
-	if(stat & (BROKEN|NOPOWER))
-		if(damage >= 10)
-			if(src.density)
-				visible_message("<span class='danger'>\The [user] forces \the [src] open!</span>")
-				open()
-			else
-				visible_message("<span class='danger'>\The [user] forces \the [src] closed!</span>")
-				close()
-		else
-			visible_message("<span class='notice'>\The [user] strains fruitlessly to force \the [src] [density ? "open" : "closed"].</span>")
-		return
-	..()
-
-/obj/machinery/door/airlock/external
-	name = "External Airlock"
-	icon = 'icons/obj/doors/Doorext.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_ext
+/obj/machinery/door/airlock/freezer
+	name = "Freezer Airlock"
+	doorColor = "white"
 
 /obj/machinery/door/airlock/centcom
 	name = "Airlock"
 	icon = 'icons/obj/doors/Doorele.dmi'
 	opacity = 0
-
-/obj/machinery/door/airlock/vault
-	name = "Vault"
-	icon = 'icons/obj/doors/vault.dmi'
-	opacity = 1
-	secured_wires = 1
-	assembly_type = /obj/structure/door_assembly/door_assembly_highsecurity //Until somebody makes better sprites.
-
-/obj/machinery/door/airlock/freezer
-	name = "Freezer Airlock"
-	icon = 'icons/obj/doors/Doorfreezer.dmi'
-	opacity = 1
-	assembly_type = /obj/structure/door_assembly/door_assembly_fre
 
 /obj/machinery/door/airlock/hatch
 	name = "Airtight Hatch"
@@ -163,20 +158,25 @@
 	opacity = 1
 	assembly_type = /obj/structure/door_assembly/door_assembly_mhatch
 
+//mineral doors
+
 /obj/machinery/door/airlock/gold
 	name = "Gold Airlock"
 	icon = 'icons/obj/doors/Doorgold.dmi'
 	mineral = "gold"
+	doortype = "mineral"
 
 /obj/machinery/door/airlock/silver
 	name = "Silver Airlock"
 	icon = 'icons/obj/doors/Doorsilver.dmi'
 	mineral = "silver"
+	doortype = "mineral"
 
 /obj/machinery/door/airlock/diamond
 	name = "Diamond Airlock"
 	icon = 'icons/obj/doors/Doordiamond.dmi'
 	mineral = "diamond"
+	doortype = "mineral"
 
 /obj/machinery/door/airlock/uranium
 	name = "Uranium Airlock"
@@ -184,6 +184,7 @@
 	icon = 'icons/obj/doors/Dooruranium.dmi'
 	mineral = "uranium"
 	var/last_event = 0
+	doortype = "mineral"
 
 /obj/machinery/door/airlock/uranium/process()
 	if(world.time > last_event+20)
@@ -202,6 +203,7 @@
 	desc = "No way this can end badly."
 	icon = 'icons/obj/doors/Doorphoron.dmi'
 	mineral = "phoron"
+	doortype = "mineral"
 
 /obj/machinery/door/airlock/phoron/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(exposed_temperature > 300)
@@ -230,12 +232,21 @@
 	name = "Sandstone Airlock"
 	icon = 'icons/obj/doors/Doorsand.dmi'
 	mineral = "sandstone"
+	doortype = "mineral"
 
-/obj/machinery/door/airlock/highsecurity
-	name = "Secure Airlock"
-	icon = 'icons/obj/doors/hightechsecurity.dmi'
-	secured_wires = 1
-	assembly_type = /obj/structure/door_assembly/door_assembly_highsecurity
+/obj/machinery/door/airlock/attack_generic(var/mob/user, var/damage)
+	if(stat & (BROKEN|NOPOWER))
+		if(damage >= 10)
+			if(src.density)
+				visible_message("<span class='danger'>\The [user] forces \the [src] open!</span>")
+				open()
+			else
+				visible_message("<span class='danger'>\The [user] forces \the [src] closed!</span>")
+				close()
+		else
+			visible_message("<span class='notice'>\The [user] strains fruitlessly to force \the [src] [density ? "open" : "closed"].</span>")
+		return
+	..()
 
 /*
 About the new airlock wires panel:
@@ -363,6 +374,7 @@ About the new airlock wires panel:
 
 /obj/machinery/door/airlock/update_icon()
 	if(overlays) overlays.Cut()
+	setDoorColor()
 	if(density)
 		if(locked && lights)
 			icon_state = "door_locked"
@@ -395,26 +407,32 @@ About the new airlock wires panel:
 			if(p_open)
 				spawn(2) // The only work around that works. Downside is that the door will be gone for a millisecond.
 					flick("o_door_opening", src)  //can not use flick due to BYOND bug updating overlays right before flicking
+					setDoorColor()
 					update_icon()
 			else
 				flick("door_opening", src)//[stat ? "_stat":]
+				setDoorColor()
 				update_icon()
 		if("closing")
 			if(overlays) overlays.Cut()
 			if(p_open)
 				spawn(2)
 					flick("o_door_closing", src)
+					setDoorColor()
 					update_icon()
 			else
 				flick("door_closing", src)
+				setDoorColor()
 				update_icon()
 		if("spark")
 			if(density)
 				flick("door_spark", src)
+				setDoorColor()
 		if("deny")
 			if(density && src.arePowerSystemsOn())
 				playsound(src.loc, 'sound/effects/door_error.ogg', 75, 1)
 				flick("door_deny", src)
+				setDoorColor()
 	return
 
 /obj/machinery/door/airlock/attack_ai(mob/user as mob)
@@ -1088,23 +1106,9 @@ About the new airlock wires panel:
 
 /obj/machinery/door/airlock/New(var/newloc, var/obj/structure/door_assembly/assembly=null)
 	relativewall_neighbours()
-
+	stripeOverlay = image("icon" = 'icons/obj/doors/doorglass_detail.dmi', "icon_state" = "[icon_state]")
 
 	..()
-	getDoorColor()
-
-	switch(doorColor) //IT'S THE COLORS OF THE RAINBOW~!! AGAIN!! -Cakey
-		if("red")
-			world << "fuck u"
-	/*	if("orange")
-		if("yellow")
-		if("green")
-		if("blue")
-		if("indigo")
-		if("violet")
-		if("brown")
-		if("white")*/
-
 	//High-sec airlocks are much harder to completely break by emitters.
 	if(secured_wires)
 		emitter_resistance *= 3
@@ -1142,6 +1146,9 @@ About the new airlock wires panel:
 				if(A.closeOtherId == src.closeOtherId && A != src)
 					src.closeOther = A
 					break
+
+	//door color attributes
+	setDoorColor()
 
 
 /obj/machinery/door/airlock/Destroy()
@@ -1187,30 +1194,42 @@ About the new airlock wires panel:
 	src.lock()
 	return
 
-/obj/machinery/door/airlock/proc/getDoorColor()
-	/*if(doorColor = "none")
+/obj/machinery/door/airlock/proc/setDoorColor()
+	switch(doortype) //Checks what the door type is to relate it to the overlay files
+		if("standard")
+			colorOverlay = image("icon" = 'icons/obj/doors/doorint_color.dmi', "icon_state" = "[icon_state]")
+		if("glass")
+			colorOverlay = image("icon" = 'icons/obj/doors/doorglass_color.dmi', "icon_state" = "[icon_state]")
+		/*if("external")
+			colorOverlay = image("icon" = 'icons/obj/doors/doorext_color.dmi', "icon_state" = "[icon_state]")
+		if("secure")
+			colorOverlay = image("icon" = 'icons/obj/doors/doorsec_color.dmi', "icon_state" = "[icon_state]")
+		if("mineral")*/
+
+	if(doorColor = "none")
 		colorOverlay.alpha = 0
 	else
 		colorOverlay.alpha = 122
 		switch(doorColor) //IT'S THE COLORS OF THE RAINBOW~!! -Cakey
 			if("red")
-				colorOverlay.color = "#a80000"
+				colorOverlay.color = COLOR_RED
 			if("orange")
-				colorOverlay.color = "#a80000"
+				colorOverlay.color = COLOR_ORANGE
 			if("yellow")
-				colorOverlay.color = "#a80000"
+				colorOverlay.color = COLOR_YELLOW
 			if("green")
-				colorOverlay.color = "#a80000"
+				colorOverlay.color = COLOR_GREEN
 			if("blue")
-				colorOverlay.color = "#a80000"
+				colorOverlay.color = COLOR_BLUE
 			if("indigo")
-				colorOverlay.color = "#a80000"
+				colorOverlay.color = COLOR_INDIGO
 			if("violet")
-				colorOverlay.color = "#a80000"
+				colorOverlay.color = COLOR_VIOLET
 			if("brown")
-				colorOverlay.color = "#a80000"
+				colorOverlay.color = COLOR_BROWN
 			if("white")
-				colorOverlay.color = "#a80000"*/
+				colorOverlay.color = COLOR_WHITE
+		overlays += colorOverlay //Adds the calculated settings to the overlay.
 
 
 /obj/machinery/door/airlock/proc/getDoorStripe()

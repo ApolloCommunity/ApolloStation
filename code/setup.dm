@@ -715,6 +715,9 @@ var/list/be_special_flags = list(
 #define COLOR_YELLOW 	"#FFFF00"
 #define COLOR_ORANGE 	"#FF9900"
 #define COLOR_WHITE 	"#FFFFFF"
+#define COLOR_BROWN		"#704129"
+#define COLOR_INDIGO	"#4B0082"
+#define COLOR_VIOLET	"#EE82EE"
 
 /*
 	Germs and infections
