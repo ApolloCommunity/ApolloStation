@@ -61,7 +61,10 @@
 					name = capitalize(pick(first_names_female)) + " " + capitalize(pick(last_names))
 
 		mind = body.mind	//we don't transfer the mind but we keep a reference to it.
-
+	else
+		spawn(10) // wait for the observer mob to receive the client's key
+			mind = new /datum/mind(key)
+			mind.current = src
 	if(!T)	T = pick(latejoin)			//Safety in case we cannot find the body's position
 	loc = T
 
@@ -680,6 +683,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 
 	qdel(M)
 
+
 /proc/forge_gladiator( var/obj/spawn_location )
 
 	//usr << "<span class='alert'>ERT has been temporarily disabled. Talk to a coder.</span>"
@@ -761,7 +765,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	M.loc = spawn_location
 	return M
 
-
 /mob/living/carbon/human/proc/equip_gladiator()
 	//Uniform
 	equip_to_slot_or_qdel(new /obj/item/clothing/under/pj/blue(src), slot_w_uniform)
@@ -773,3 +776,17 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	equip_to_slot_or_qdel(new /obj/item/weapon/storage/firstaid/regular(src), slot_in_backpack)
 
 	return 1
+
+/mob/observer/ghost/verb/toggle_antag_pool()
+	set name = "Toggle Add-Antag Candidacy"
+	set desc = "Toggles whether or not you will be considered a candidate by an add-antag vote."
+	set category = "Ghost"
+	if(ticker.looking_for_antags)
+		if(src.mind in ticker.antag_pool)
+			ticker.antag_pool -= src.mind
+			usr << "You have left the antag pool."
+		else
+			ticker.antag_pool += src.mind
+			usr << "You have joined the antag pool."
+	else
+		usr << "The game is not currently looking for antags."

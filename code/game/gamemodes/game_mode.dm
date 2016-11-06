@@ -11,6 +11,8 @@
  *
  */
 
+var/global/antag_add_finished // Used in antag type voting.
+var/global/list/additional_antag_types = list()
 
 /datum/game_mode
 	var/name = "invalid"

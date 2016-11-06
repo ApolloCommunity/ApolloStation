@@ -35,12 +35,16 @@ var/global/datum/controller/gameticker/ticker
 	var/list/availablefactions = list()	  // list of factions with openings
 
 	var/pregame_timeleft = 0
+	var/gamemode_voted = 0
 
 	var/delay_end = 0	//if set to nonzero, the round will not restart on it's own
 
 	var/triai = 0//Global holder for Triumvirate
 
 	var/round_end_announced = 0 // Spam Prevention. Announce round end only once.
+
+	var/list/antag_pool = list()
+	var/looking_for_antags = 0
 
 /datum/controller/gameticker/proc/pregame()
 	login_music = pick(\
@@ -58,7 +62,25 @@ var/global/datum/controller/gameticker/ticker
 	'sound/music/jazzy_jazz.ogg',\
 	)
 	do
-		pregame_timeleft = 180
+		if(!gamemode_voted)
+			pregame_timeleft = 180
+		else
+			pregame_timeleft = 15
+			if(!isnull(secondary_mode))
+				master_mode = secondary_mode
+				secondary_mode = null
+				world << "Trying to start the second top game mode..."
+				if(!hide_mode)
+					world << "<b>The game mode is now: [master_mode]</b>"
+			else if(!isnull(tertiary_mode))
+				master_mode = tertiary_mode
+				tertiary_mode = null
+				world << "Trying to start the third top game mode..."
+				if(!hide_mode)
+					world << "<b>The game mode is now: [master_mode]</b>"
+			else
+				master_mode = "extended"
+				world << "<b>Forcing the game mode to extended...</b>"
 		world << "<B><FONT color='blue'>Welcome to the pre-game lobby!</FONT></B>"
 		world << "Please, setup your character and select ready. Game will start in [pregame_timeleft] seconds"
 		while(current_state == GAME_STATE_PREGAME)
@@ -67,7 +89,8 @@ var/global/datum/controller/gameticker/ticker
 				vote.process()
 			if(going)
 				pregame_timeleft--
-			if(pregame_timeleft == config.vote_autogamemode_timeleft)
+			if(pregame_timeleft == config.vote_autogamemode_timeleft && !gamemode_voted)
+				gamemode_voted = 1
 				if(!vote.time_remaining)
 					vote.autogamemode()	//Quit calling this over and over and over and over.
 					while(vote.time_remaining)
@@ -78,6 +101,38 @@ var/global/datum/controller/gameticker/ticker
 				current_state = GAME_STATE_SETTING_UP
 	while (!setup())
 
+/datum/controller/gameticker/proc/attempt_late_antag_spawn(var/list/antag_choices)
+	var/datum/antagonist/antag = antag_choices[1]
+	while(antag_choices.len)
+		var/needs_ghost = antag.flags & (ANTAG_OVERRIDE_JOB | ANTAG_OVERRIDE_MOB)
+		antag.update_current_antag_max()
+		antag.build_candidate_list(needs_ghost)
+		if (needs_ghost)
+			looking_for_antags = 1
+			antag_pool.Cut()
+			world << "<b>A ghost is needed to spawn \a [antag.role_text].</b>\nGhosts may enter the antag pool by using the toggle-add-antag-candidacy verb. You have 30 seconds to enter the pool."
+			sleep(300)
+			looking_for_antags = 0
+			for(var/datum/mind/candidate in antag.candidates)
+				if(!(candidate in antag_pool))
+					antag.candidates -= candidate
+					log_debug("[candidate.key] was not in the antag pool and could not be selected.")
+		else
+			for(var/datum/mind/candidate in antag.candidates)
+				if(isghost(candidate.current))
+					antag.candidates -= candidate
+					log_debug("[candidate.key] is a ghost and can not be selected.")
+		if(length(antag.candidates) >= antag.initial_spawn_req)
+			antag.attempt_spawn()
+			antag.finalize_spawn()
+			return 1
+		else
+			world << "Failed to find enough [antag.role_text_plural]."
+			antag_choices -= antag
+			if(length(antag_choices))
+				antag = antag_choices[1]
+				world << "Attempting to spawn [antag.role_text_plural]."
+	return 0
 
 /datum/controller/gameticker/proc/setup()
 	if(master_mode=="secret")
